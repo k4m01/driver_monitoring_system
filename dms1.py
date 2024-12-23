@@ -93,9 +93,11 @@ def eye_aspect_ratio(eye):
 
 # ฟังก์ชันคำนวณ MAR
 def calculate_mar(mouth_points):
-    A = distance.euclidean(mouth_points[1], mouth_points[2]) 
-    B = distance.euclidean(mouth_points[0], mouth_points[3])
-    mar = A / B
+    A = distance.euclidean(mouth_points[3], mouth_points[5])  # p2 - p8
+    B = distance.euclidean(mouth_points[2], mouth_points[6])  # p3 - p7
+    C = distance.euclidean(mouth_points[1], mouth_points[7])  # p4 - p6
+    D = distance.euclidean(mouth_points[0], mouth_points[4])  # p1 - p5
+    mar = (A + B + C) / (2.0 * D)
     # print(f"Vertical Distances: A={A:.2f}, B={B:.2f} MAR={mar:.2f}")
     return mar
 
@@ -179,7 +181,14 @@ while True:
             landmarks = face_landmarks.landmark
             left_eye_indices = [33, 160, 158, 133, 153, 144]
             right_eye_indices = [362, 385, 387, 263, 373, 380]
-            mouth_indices = [78, 13, 14, 308]
+            mouth_indices = [78 ,81 ,13 ,311 ,308 ,402 ,14 ,178]    #78 ด้านซ้าย P1
+                                                                    #308 ด้านขวา P5
+                                                                    #13 บน P3
+                                                                    #14 ล่าง P7
+                                                                    #178 ล่างซ่้าย P8
+                                                                    #402 ล่างขวา P6
+                                                                    #81 บนซ้าย P2
+                                                                    #311 บนล่าง P4
             left_ear_landmark = 234  
             right_ear_landmark = 454
 
