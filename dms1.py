@@ -10,12 +10,63 @@ import threading  # ใช้ threading เพื่อให้เสียง�
 import pygame
 import math
 
+import mysql.connector
+
+def save_to_database(filename, alert_type, timestamp):
+    try:
+        # สร้างการเชื่อมต่อ
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",          # ชื่อผู้ใช้ MySQL
+            password="",          # รหัสผ่าน MySQL
+            database="alert_db"   # ชื่อฐานข้อมูล
+        )
+        cursor = connection.cursor()
+        
+        # คำสั่ง SQL
+        query = "INSERT INTO alerts (filename, alert_type, timestamp) VALUES (%s, %s, %s)"
+        data = (filename, alert_type, timestamp)
+        
+        # เพิ่มข้อมูล
+        cursor.execute(query, data)
+        connection.commit()
+
+        # ปิดการเชื่อมต่อ
+        cursor.close()
+        connection.close()
+        
+        print(f"Data saved to database: {data}")
+    except mysql.connector.Error as err:
+        print(f"Database Error: {err}")
+
+
+
+def capture_frame(frame, alert_type):
+    if not os.path.exists(ALERT_FOLDER):
+        os.makedirs(ALERT_FOLDER)
+
+    # สร้างชื่อไฟล์ภาพตาม timestamp
+    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"{alert_type}_{timestamp}.jpg"
+    file_path = os.path.join(ALERT_FOLDER, filename)
+
+    # บันทึกไฟล์ภาพ
+    cv2.imwrite(file_path, frame)
+
+    # บันทึกข้อมูลลงในฐานข้อมูล
+    save_to_database(filename, alert_type, timestamp)
+
+    print(f"Captured frame for {alert_type} alert and saved to database: {file_path}")
+
+
+
+
 
 # ตั้งค่าพารามิเตอร์ของโมเดล
 MODEL_NAME = 'custom_model_lite'
 GRAPH_NAME = 'detect.tflite'
 LABELMAP_NAME = 'labelmap.txt'
-ALERT_FOLDER = 'alert_images'
+ALERT_FOLDER = 'C:/xampp/htdocs/Project_4/web/alert_images'
 min_conf_threshold = 0.2
 resW, resH = 1280, 720
 use_TPU = False
@@ -111,19 +162,19 @@ def play_alert_sound(file_name):
 
     
 
-def capture_frame(frame, alert_type):
-    # Create folder if it doesn't exist
-    if not os.path.exists(ALERT_FOLDER):
-        os.makedirs(ALERT_FOLDER)
+# def capture_frame(frame, alert_type):
+#     # Create folder if it doesn't exist
+#     if not os.path.exists(ALERT_FOLDER):
+#         os.makedirs(ALERT_FOLDER)
         
-    # Create a filename with a timestamp and alert type
-    timestamp = time.strftime("%Y_%m_%d_%H %M %S")
-    filename = f"{alert_type}_{timestamp}.jpg"
-    file_path = os.path.join(ALERT_FOLDER, filename)
+#     # Create a filename with a timestamp and alert type
+#     timestamp = time.strftime("%Y_%m_%d_%H %M %S")
+#     filename = f"{alert_type}_{timestamp}.jpg"
+#     file_path = os.path.join(ALERT_FOLDER, filename)
     
-    # Save the image and print the file path
-    cv2.imwrite(file_path, frame)
-    print(f"Captured frame for {alert_type} alert as {file_path}")
+#     # Save the image and print the file path
+#     cv2.imwrite(file_path, frame)
+#     print(f"Captured frame for {alert_type} alert as {file_path}")
 
 
 # เริ่มต้นการจับภาพจากกล้อง
