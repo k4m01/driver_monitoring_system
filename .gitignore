@@ -17,4 +17,3 @@ testfps.py
 testmAP.py
 testMAR.py
 testYolo.py
-TFLite_detection_webcam.py
